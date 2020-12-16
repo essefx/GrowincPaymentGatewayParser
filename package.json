@@ -1,0 +1,17 @@
+{
+	"name": "2c2p-parser",
+	"version": "1.0.0",
+	"description": "Scrapper for 2C2P",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Sean A. (essefx@gmail.com)",
+	"license": "ISC",
+	"dependencies": {
+		"express": "^4.16.4",
+		"mkdirp": "^0.5.1",
+		"moment": "^2.24.0",
+		"puppeteer": "^1.12.2"
+	}
+}
