@@ -8,6 +8,9 @@ node_modules/
 dist/
 browser_data/
 _/
+Doku/node_modules/
+Doku/browser_data_13579/
+Doku/browser_data_13578/
 
 # Compiled Java class files
 *.class

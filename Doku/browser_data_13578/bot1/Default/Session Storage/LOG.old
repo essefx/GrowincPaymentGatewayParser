@@ -1,4 +1,2 @@
-2021/06/21-11:28:21.619 4203 Reusing MANIFEST /Users/michaeltedja/Work/Payment/Doku/browser_data_13578/bot1/Default/Session Storage/MANIFEST-000001
-2021/06/21-11:28:21.621 4203 Recovering log #3
-2021/06/21-11:28:21.621 4203 (ignoring error) /Users/michaeltedja/Work/Payment/Doku/browser_data_13578/bot1/Default/Session Storage/000003.log: dropping 24526 bytes; Corruption: checksum mismatch
-2021/06/21-11:28:21.622 4203 Reusing old log /Users/michaeltedja/Work/Payment/Doku/browser_data_13578/bot1/Default/Session Storage/000003.log 
+2021/06/21-16:35:24.002 3f8 Creating DB C:\Users\essefx\Www\git\GrowincPaymentGatewayParser\Doku\browser_data_13578\bot1\Default\Session Storage since it was missing.
+2021/06/21-16:35:24.030 3f8 Reusing MANIFEST C:\Users\essefx\Www\git\GrowincPaymentGatewayParser\Doku\browser_data_13578\bot1\Default\Session Storage/MANIFEST-000001
