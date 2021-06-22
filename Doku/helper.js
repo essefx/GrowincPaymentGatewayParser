@@ -2,9 +2,7 @@
 
 const moment = require('moment');
 
-/*==========================================================================================
-											Start of Helper
-==========================================================================================**/
+/*------------------------------v Start of Helper v---------- */
 
 function debug(msg1, msg2, msg3) {
     console.log(moment().format("YYYY/MM/DD hh:mm:ss"), msg1, (msg2 !== undefined ? msg2 : ''), (msg3 !== undefined ? msg3 : ''));
@@ -19,7 +17,7 @@ async function trimText(html) {
     return html;
 }
 
-/*=================================   End of Helper   ==================================*/
+/*------------------------------^ End of Helper ^---------- */
 
 //EXPORT HELPER
 

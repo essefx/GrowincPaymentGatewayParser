@@ -42,7 +42,8 @@ let parsed_param;
 											Start of Functions
 ==========================================================================================**/
 
-async function ParseURL(req, res) {
+async function Parser(req, res) {
+
     if (req.params.vendor) parsed_vendor = req.params.vendor;
     if (req.params.type) parsed_type = req.params.type;
     if (req.params.bank) parsed_bank = req.params.bank;
@@ -58,8 +59,8 @@ async function ParseURL(req, res) {
     let parsed_param_decoded = buff_param.toString('ascii');
     //
 
-    helper.debug('ParseURL() url decoded: ' + parsed_url_decoded);
-    helper.debug('ParseURL() param decoded: ' + parsed_param_decoded);
+    helper.debug('Parser() url decoded: ' + parsed_url_decoded);
+    helper.debug('Parser() param decoded: ' + parsed_param_decoded);
 
     try {
         if (typeof browser[client_id] == 'undefined' || browser[client_id] === null) {
@@ -95,11 +96,12 @@ async function ParseURL(req, res) {
                 waitUntil: 'networkidle2',
                 timeout: 0
             }).then(async function() {
-                //  helper.debug('ParseURL() checking element ' + parsed_type + ' for ' + parsed_vendor + '..');
+                //  helper.debug('Parser() checking element ' + parsed_type + ' for ' + parsed_vendor + '..');
                 await page.setDefaultNavigationTimeout(5000);
                 // Switch for type
                 switch (parsed_vendor) {
                     case 'doku':
+                        /*------------------------------v Start of Doku v---------- */
                         switch (parsed_type) {
                             case 'va':
                                 /*------------------------------v Start of VA v---------- */
@@ -132,7 +134,7 @@ async function ParseURL(req, res) {
                                 var element_found = await page.evaluate(() => document.querySelector('.numva').innerHTML);
                                 if (element_found) {
                                     parsed_number = await helper.trimText(element_found);
-                                    helper.debug('ParseURL() va found: ' + parsed_number);
+                                    helper.debug('Parser() va found: ' + parsed_number);
                                     result.push({
                                         status: '000',
                                         data: {
@@ -165,7 +167,7 @@ async function ParseURL(req, res) {
                                 var element_found = await page.evaluate(() => document.querySelector('.numva').innerHTML);
                                 if (element_found) {
                                     parsed_number = await helper.trimText(element_found);
-                                    helper.debug('ParseURL() paycode found: ' + parsed_number);
+                                    helper.debug('Parser() paycode found: ' + parsed_number);
                                     result.push({
                                         status: '000',
                                         data: {
@@ -181,6 +183,9 @@ async function ParseURL(req, res) {
                                 /*------------------------------^ End of Convenience store ^---------- */
                         }
                         break;
+                        /*------------------------------^ End of Doku ^---------- */
+                    default:
+                        throw new Error('Undefined vendor ' + parsed_vendor);
                 }
             }).then(async function() {
                 //
@@ -189,18 +194,23 @@ async function ParseURL(req, res) {
                     status: '001',
                     error: e.message
                 });
-                helper.debug('ParseURL() err : ' + e.message);
+                helper.debug('Parser() err : ' + e.message);
             });
             //
             await page.close();
             await browser[client_id].close();
             browser[client_id] = null;
         }
-        res.setHeader('Content-Type', 'application/json');
-        res.send(result[0]);
     } catch (e) {
-        helper.debug('ParseURL() err : ' + e.message);
+        result.push({
+            status: '999',
+            error: e.message
+        });
+        helper.debug('Parser() err : ' + e.message);
     }
+    res.setHeader('Content-Type', 'application/json');
+    res.send(result[0]);
+
 }
 
 /*=================================   End of Functions   ==================================*/
@@ -208,5 +218,5 @@ async function ParseURL(req, res) {
 //EXPORT FUNCTION
 
 module.exports = {
-    ParseURL
+    Parser
 }
