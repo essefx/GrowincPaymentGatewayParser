@@ -1,3 +1,4 @@
-2021/06/21-16:36:07.669 7278 Reusing MANIFEST C:\Users\essefx\Www\git\GrowincPaymentGatewayParser\Doku\browser_data_13578\bot1\Default\Session Storage/MANIFEST-000001
-2021/06/21-16:36:07.670 7278 Recovering log #3
-2021/06/21-16:36:07.671 7278 Reusing old log C:\Users\essefx\Www\git\GrowincPaymentGatewayParser\Doku\browser_data_13578\bot1\Default\Session Storage/000003.log 
+2021/06/22-08:46:02.909 4b03 Reusing MANIFEST /Users/michaeltedja/Work/Payment/GrowincPaymentGatewayParser/Doku/browser_data_13578/bot1/Default/Session Storage/MANIFEST-000001
+2021/06/22-08:46:02.910 4b03 Recovering log #3
+2021/06/22-08:46:02.910 4b03 (ignoring error) /Users/michaeltedja/Work/Payment/GrowincPaymentGatewayParser/Doku/browser_data_13578/bot1/Default/Session Storage/000003.log: dropping 25769 bytes; Corruption: checksum mismatch
+2021/06/22-08:46:02.910 4b03 Reusing old log /Users/michaeltedja/Work/Payment/GrowincPaymentGatewayParser/Doku/browser_data_13578/bot1/Default/Session Storage/000003.log 

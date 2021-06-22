@@ -99,7 +99,7 @@ async function ParseURL(req, res) {
                                 /*------------------------------v Start of VA v---------- */
                                 await page.waitForNavigation({ waitUntil: 'load' });
                                 await page.click('#menu-banktransfer');
-                                await page.waitFor(100);
+                                await page.waitFor(200);
                                 switch (parsed_bank) {
                                     case 'danamon':
                                         await page.click('#formDanamonVA');
@@ -141,7 +141,7 @@ async function ParseURL(req, res) {
                                 /*------------------------------v Start of Convenience store v---------- */
                                 await page.waitForNavigation({ waitUntil: 'load' });
                                 await page.click('#menu-alfa');
-                                await page.waitFor(100);
+                                await page.waitFor(200);
                                 switch (parsed_bank) {
                                     case 'alfamart':
                                         await page.click('#formAlfaMVA');
