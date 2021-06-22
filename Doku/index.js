@@ -3,12 +3,13 @@
 const express = require('express');
 const app = express();
 
-const app_port = 13578;
-
 // CALL CONTROLLER AND HELPER
 
+const parseurl = require('./parseurl');
 const helper = require('./helper');
-const parseurl = require('./parseurl')
+const config = require('./config.json');
+
+let app_port = config.app_port;
 
 // END INIT APP
 
@@ -16,7 +17,7 @@ const parseurl = require('./parseurl')
                                  Start of Routes
 ==========================================================================================**/
 
-app.get('/', async function (req, res) {
+app.get('/', async function(req, res) {
     res.send('PG parser');
 });
 

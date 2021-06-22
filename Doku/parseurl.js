@@ -6,14 +6,15 @@ const parse = require('json-to-query-string');
 //CALL HELPER
 
 const helper = require('./helper');
+const config = require('./config.json');
 
 //INIT BROWSER
 
-let client_id = 'bot1';
+let client_id = config.client_id;
 let browser = {};
 let browser_args = {
-    headless: false,
-    userDataDir: "./browser_data_13578/" + client_id,
+    headless: config.is_headless,
+    userDataDir: "./browser_data/" + config.vendor_name + "/" + config.app_port + "/" + client_id,
     args: [
         '--no-sandbox',
         '--disable-infobars',
@@ -49,9 +50,16 @@ async function ParseURL(req, res) {
     if (req.params.param) parsed_param = req.params.param;
     result = [];
 
-    // Overide for testing
-    let parsed_param_decoded = '{"MALLID":"11847610","CHAINMERCHANT":"NA","AMOUNT":777700,"PURCHASEAMOUNT":777700,"TRANSIDMERCHANT":"0012800826","PAYMENTTYPE":"SALE","WORDS":"66810ab5503de859e94e09e4ced015c04a9bec61","REQUESTDATETIME":"20210208231346","CURRENCY":"360","PURCHASECURRENCY":"360","SESSIONID":"test_session","NAME":"LOREM IPSUM","EMAIL":"lorem@ipsum.com","ADDITIONALDATA":"","BASKET":"item 1,777700.00,1,777700.00","SHIPPING_ADDRESS":"","SHIPPING_CITY":"","SHIPPING_STATE":"","SHIPPING_COUNTRY":"","SHIPPING_ZIPCODE":"","PAYMENTCHANNEL":"","ADDRESS":null,"CITY":"","STATE":"","COUNTRY":"IDN","ZIPCODE":"","HOMEPHONE":"","MOBILEPHONE":"088812345678","WORKPHONE":"","BIRTHDATE":""}';
-    let parsed_url_decoded = 'https://staging.doku.com/Suite/Receive';
+    //
+    let buff_url = new Buffer(parsed_url, 'base64');
+    let parsed_url_decoded = buff_url.toString('ascii');
+    //
+    let buff_param = new Buffer(parsed_param, 'base64');
+    let parsed_param_decoded = buff_param.toString('ascii');
+    //
+
+    helper.debug('ParseURL() url decoded: ' + parsed_url_decoded);
+    helper.debug('ParseURL() param decoded: ' + parsed_param_decoded);
 
     try {
         if (typeof browser[client_id] == 'undefined' || browser[client_id] === null) {
@@ -64,9 +72,6 @@ async function ParseURL(req, res) {
                 width: 1440,
                 height: 768
             });
-
-            helper.debug('ParseURL() url decoded: ' + parsed_url_decoded);
-            helper.debug('ParseURL() param decoded: ' + parsed_param_decoded);
 
             /*------------------------------v Start of Section v---------- */
             await page.setRequestInterception(true);
@@ -90,7 +95,8 @@ async function ParseURL(req, res) {
                 waitUntil: 'networkidle2',
                 timeout: 0
             }).then(async function() {
-                helper.debug('ParseURL() checking element ' + parsed_type + ' for ' + parsed_vendor + '..');
+                //  helper.debug('ParseURL() checking element ' + parsed_type + ' for ' + parsed_vendor + '..');
+                await page.setDefaultNavigationTimeout(5000);
                 // Switch for type
                 switch (parsed_vendor) {
                     case 'doku':
@@ -119,22 +125,25 @@ async function ParseURL(req, res) {
                                     case 'bri':
                                         await page.click('#formBRIVA');
                                         break;
+                                    default:
+                                        throw new Error('Undefined bank ' + parsed_bank);
                                 }
                                 await page.waitForSelector('div[class="numva"]');
                                 var element_found = await page.evaluate(() => document.querySelector('.numva').innerHTML);
                                 if (element_found) {
                                     parsed_number = await helper.trimText(element_found);
                                     helper.debug('ParseURL() va found: ' + parsed_number);
+                                    result.push({
+                                        status: '000',
+                                        data: {
+                                            payment_url: parsed_url_decoded,
+                                            bank: parsed_bank,
+                                            va_number: parsed_number,
+                                        }
+                                    });
                                 } else {
-                                    helper.debug('ParseURL() va not found');
+                                    throw new Error('VA number not found ');
                                 }
-                                result.push({
-                                    status: '000',
-                                    data: {
-                                        payment_url: parsed_url_decoded,
-                                        va_number: parsed_number,
-                                    }
-                                });
                                 break;
                                 /*------------------------------^ End of VA ^---------- */
                             case 'cstore':
@@ -149,40 +158,48 @@ async function ParseURL(req, res) {
                                     case 'indomaret':
                                         await page.click('#formIndomaret');
                                         break;
+                                    default:
+                                        throw new Error('Undefined channel ' + parsed_bank);
                                 }
                                 await page.waitForSelector('div[class="numva"]');
                                 var element_found = await page.evaluate(() => document.querySelector('.numva').innerHTML);
                                 if (element_found) {
                                     parsed_number = await helper.trimText(element_found);
                                     helper.debug('ParseURL() paycode found: ' + parsed_number);
+                                    result.push({
+                                        status: '000',
+                                        data: {
+                                            payment_url: parsed_url_decoded,
+                                            channel: parsed_bank,
+                                            pay_code: parsed_number,
+                                        }
+                                    });
                                 } else {
-                                    helper.debug('ParseURL() paycode not found');
+                                    throw new Error('Paycode not found ');
                                 }
-                                result.push({
-                                    status: '000',
-                                    data: {
-                                        payment_url: parsed_url_decoded,
-                                        pay_code: parsed_number,
-                                    }
-                                });
                                 break;
                                 /*------------------------------^ End of Convenience store ^---------- */
                         }
                         break;
                 }
-                await page.close();
-                await browser[client_id].close();
-                browser[client_id] = null
             }).then(async function() {
                 //
             }).catch(function(e) {
-                return 'err ParseURL() ' + e.message;
+                result.push({
+                    status: '001',
+                    error: e.message
+                });
+                helper.debug('ParseURL() err : ' + e.message);
             });
+            //
+            await page.close();
+            await browser[client_id].close();
+            browser[client_id] = null;
         }
         res.setHeader('Content-Type', 'application/json');
         res.send(result[0]);
     } catch (e) {
-        throw new Error('err ParseURL() ' + e.message);
+        helper.debug('ParseURL() err : ' + e.message);
     }
 }
 
