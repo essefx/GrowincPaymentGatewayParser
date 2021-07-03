@@ -1,8 +1,6 @@
 {
-    "is_headless": false,
-
-    "vendor_name": "DOKU",
+    "vendor_name": "Doku",
     "app_port": 13578,
-
+    "is_headless": false,
     "client_id": "bot_doku"
 }
