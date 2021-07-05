@@ -30,7 +30,7 @@ let parsed_url, parsed_url_decoded;
 let parsed_param, parsed_param_decoded;
 
 /*==========================================================================================
-											Start of Functions
+                                            Start of Functions
 ==========================================================================================**/
 
 async function Parser(req, res) {
@@ -77,47 +77,45 @@ async function Parser(req, res) {
             await page.goto(parsed_url_decoded, {
                 waitUntil: 'networkidle2',
                 timeout: 0
-            }).then(async function() {
+            }).then(async function () {
                 helper.debug(pid, `INFO Parser() checking element ${parsed_type} for ${parsed_vendor}`);
                 await page.setDefaultNavigationTimeout(15000);
                 // Switch for type
-                //  switch (parsed_vendor) {
-                //      case 'tctp':
-                //          /*------------------------------v Start of 2C2P v---------- */
-                //          switch (parsed_type) {
-                //              case 'va':
-                //                  /*------------------------------v Start of VA v---------- */
-                //                  await page.waitForSelector('input[id="number"]');
-                //                  var element_found = await page.evaluate(() => document.querySelector('input[id="number"]').outerHTML);
-                //                  if (element_found) {
-                //                      await page.type('input[id="number"]', parsed_param_decoded);
-                //                      await page.click('button[class="contact100-form-btn"]');
-                //                      await page.waitForSelector('button[class="swal2-confirm swal2-styled"]');
-                //                      var element_found = await page.evaluate(() => document.querySelector('button[class="swal2-confirm swal2-styled"]').outerHTML);
-                //                      if (element_found) {
-                //                          await page.click('button[class="swal2-confirm swal2-styled"]');
-                //                          await page.waitForSelector('img[class="swal2-image"]');
-                //                          helper.debug(pid, `INFO Parser() execution done: ${parsed_vendor}`);
-                //                          result.push({
-                //                              status: '000',
-                //                              data: {
-                //                                  payment_url: parsed_url_decoded,
-                //                                  customer_phone: parsed_param_decoded,
-                //                              }
-                //                          });
-                //                      }
-                //                  }
-                //                  break;
-                //                  /*------------------------------^ End of VA ^---------- */
-                //          }
-                //          break;
-                //          /*------------------------------^ End of 2C2P ^---------- */
-                //      default:
-                //          throw new Error(`Undefined vendor ${parsed_vendor}`);
-                //  }
-            }).then(async function() {
+                switch (parsed_vendor) {
+                    case 'tctp':
+                        /*------------------------------v Start of 2C2P v---------- */
+                        switch (parsed_type) {
+                            case 'va':
+                                /*------------------------------v Start of VA v---------- */
+                                await page.waitForNavigation({ waitUntil: 'load' });
+                                var element_found = await page.evaluate(() => document.querySelector('.code').innerHTML);
+                                if (element_found) {
+                                    parsed_number = await helper.trimText(element_found);
+                                    helper.debug('ParseURL() va found: ' + parsed_number);
+                                } else {
+                                    helper.debug('ParseURL() va not found');
+                                }
+                                result.push({
+                                    status: '000',
+                                    data: {
+                                        payment_url: parsed_url_decoded,
+                                        va_number: parsed_number,
+                                    }
+                                });
+                                // await page.close();
+                                // await browser[client_id].close();
+                                browser[client_id] = null
+                                break;
+                            /*------------------------------^ End of VA ^---------- */
+                        }
+                        break;
+                    /*------------------------------^ End of 2C2P ^---------- */
+                    default:
+                        throw new Error(`Undefined vendor ${parsed_vendor}`);
+                }
+            }).then(async function () {
                 //
-            }).catch(function(e) {
+            }).catch(function (e) {
                 result.push({
                     status: '001',
                     error: e.message
