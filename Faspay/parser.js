@@ -29,10 +29,7 @@ let parsed_channel;
 let parsed_url, parsed_url_decoded;
 let parsed_param, parsed_param_decoded;
 
-/*==========================================================================================
-											Start of Functions
-==========================================================================================**/
-
+/*------------------------------v Start of Parser v---------- */
 async function Parser(req, res) {
 
     try {
@@ -41,6 +38,9 @@ async function Parser(req, res) {
         var date = new Date();
         var time = date.getTime();
         pid = config.client_id + '-' + config.app_port + '-' + time;
+
+        // Debug
+        helper.debug(pid, `---------- CREATE ----------`);
 
         // Init
         if (req.params.vendor) parsed_vendor = req.params.vendor;
@@ -127,9 +127,14 @@ async function Parser(req, res) {
             }).catch(function(e) {
                 result.push({
                     status: '001',
-                    error: e.message
+                    error: e.message,
+                    data: {
+                        payment_url: parsed_url_decoded,
+                        channel: parsed_channel,
+                        pay_code: parsed_param_decoded,
+                    }
                 });
-                helper.debug(pid, `ERR Parser() error occured:`, e.message);
+                helper.debug(pid, `ERR Parser() error occured:`, e.message, e.lineNumber);
             });
             //
             await page.close();
@@ -139,19 +144,21 @@ async function Parser(req, res) {
     } catch (e) {
         result.push({
             status: '999',
-            error: e.message
+            error: e.message,
+            data: {
+                payment_url: parsed_url_decoded,
+                channel: parsed_channel,
+                pay_code: parsed_param_decoded,
+            }
         });
-        helper.debug(pid, `ERR Parser() error occured:`, e.message);
+        helper.debug(pid, `ERR Parser() error occured:`, e.message, e.lineNumber);
     }
     helper.debug(pid, `SUCCESS Parser() result:`, result);
     res.setHeader('Content-Type', 'application/json');
     res.send(result[0]);
 
 }
-
-/*=================================   End of Functions   ==================================*/
-
-//EXPORT FUNCTION
+/*------------------------------^ End of Parser ^---------- */
 
 module.exports = {
     Parser

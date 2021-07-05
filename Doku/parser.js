@@ -29,10 +29,7 @@ let parsed_channel;
 let parsed_url, parsed_url_decoded;
 let parsed_param, parsed_param_decoded;
 
-/*==========================================================================================
-											Start of Functions
-==========================================================================================**/
-
+/*------------------------------v Start of Parser v---------- */
 async function Parser(req, res) {
 
     try {
@@ -41,6 +38,9 @@ async function Parser(req, res) {
         var date = new Date();
         var time = date.getTime();
         pid = config.client_id + '-' + config.app_port + '-' + time;
+
+        // Debug
+        helper.debug(pid, `---------- CREATE ----------`);
 
         // Init
         if (req.params.vendor) parsed_vendor = req.params.vendor;
@@ -56,7 +56,7 @@ async function Parser(req, res) {
             helper.debug(pid, `ERR Parser() invalid parsed_url_decoded: ${parsed_url_decoded}`);
             throw new Error(`Invalid URL ${parsed_url_decoded}`);
         }
-        let parsed_param_decoded = Buffer.from(parsed_param, 'base64').toString('ascii');
+        let parsed_param_decoded = JSON.parse(Buffer.from(parsed_param, 'base64').toString('ascii'));
         if (!helper.isJson(parsed_param_decoded)) {
             helper.debug(pid, `ERR Parser() invalid parsed_param_decoded: ${parsed_param_decoded}`);
             throw new Error(`Invalid JSON ${parsed_param_decoded}`);
@@ -78,7 +78,7 @@ async function Parser(req, res) {
             page.once('request', interceptedRequest => {
                 var data = {
                     'method': 'POST',
-                    'postData': parse(JSON.parse(parsed_param_decoded)), // 'postData': parsed_param_decoded,
+                    'postData': parse(parsed_param_decoded), // 'postData': parsed_param_decoded,
                     headers: {
                         ...interceptedRequest.headers(),
                         "Content-Type": "application/x-www-form-urlencoded"
@@ -139,6 +139,7 @@ async function Parser(req, res) {
                                             payment_url: parsed_url_decoded,
                                             channel: parsed_channel,
                                             pay_code: parsed_number,
+                                            form: parsed_param_decoded,
                                         }
                                     });
                                 } else {
@@ -172,6 +173,7 @@ async function Parser(req, res) {
                                             payment_url: parsed_url_decoded,
                                             channel: parsed_channel,
                                             pay_code: parsed_number,
+                                            form: parsed_param_decoded,
                                         }
                                     });
                                 } else {
@@ -190,9 +192,13 @@ async function Parser(req, res) {
             }).catch(function(e) {
                 result.push({
                     status: '001',
-                    error: e.message
+                    error: e.message,
+                    data: {
+                        payment_url: parsed_url_decoded,
+                        form: parsed_param_decoded,
+                    }
                 });
-                helper.debug(pid, `ERR Parser() error occured:`, e.message);
+                helper.debug(pid, `ERR Parser() error occured:`, e.message, e.lineNumber);
             });
             //
             await page.close();
@@ -202,19 +208,20 @@ async function Parser(req, res) {
     } catch (e) {
         result.push({
             status: '999',
-            error: e.message
+            error: e.message,
+            data: {
+                payment_url: parsed_url_decoded,
+                form: parsed_param_decoded,
+            }
         });
-        helper.debug(pid, `ERR Parser() error occured:`, e.message);
+        helper.debug(pid, `ERR Parser() error occured:`, e.message, e.lineNumber);
     }
     helper.debug(pid, `SUCCESS Parser() result:`, result);
     res.setHeader('Content-Type', 'application/json');
     res.send(result[0]);
 
 }
-
-/*=================================   End of Functions   ==================================*/
-
-//EXPORT FUNCTION
+/*------------------------------^ End of Parser ^---------- */
 
 module.exports = {
     Parser

@@ -55,8 +55,6 @@ function appendLog(file, content) {
 
 /*------------------------------^ End of Helper ^---------- */
 
-//EXPORT HELPER
-
 module.exports = {
     debug,
     trimText,

@@ -29,10 +29,7 @@ let parsed_channel;
 let parsed_url, parsed_url_decoded;
 let parsed_param, parsed_param_decoded;
 
-/*==========================================================================================
-                                            Start of Functions
-==========================================================================================**/
-
+/*------------------------------v Start of Parser v---------- */
 async function Parser(req, res) {
 
     try {
@@ -41,6 +38,9 @@ async function Parser(req, res) {
         var date = new Date();
         var time = date.getTime();
         pid = config.client_id + '-' + config.app_port + '-' + time;
+
+        // Debug
+        helper.debug(pid, `---------- CREATE ----------`);
 
         // Init
         if (req.params.vendor) parsed_vendor = req.params.vendor;
@@ -57,10 +57,6 @@ async function Parser(req, res) {
             throw new Error(`Invalid URL ${parsed_url_decoded}`);
         }
         let parsed_param_decoded = Buffer.from(parsed_param, 'base64').toString('ascii');
-        if (!helper.isJson(parsed_param_decoded)) {
-            helper.debug(pid, `ERR Parser() invalid parsed_param_decoded: ${parsed_param_decoded}`);
-            throw new Error(`Invalid JSON ${parsed_param_decoded}`);
-        }
 
         if (typeof browser[pid] == 'undefined' || browser[pid] === null) {
 
@@ -77,7 +73,7 @@ async function Parser(req, res) {
             await page.goto(parsed_url_decoded, {
                 waitUntil: 'networkidle2',
                 timeout: 0
-            }).then(async function () {
+            }).then(async function() {
                 helper.debug(pid, `INFO Parser() checking element ${parsed_type} for ${parsed_vendor}`);
                 await page.setDefaultNavigationTimeout(15000);
                 // Switch for type
@@ -91,33 +87,37 @@ async function Parser(req, res) {
                                 var element_found = await page.evaluate(() => document.querySelector('.code').innerHTML);
                                 if (element_found) {
                                     parsed_number = await helper.trimText(element_found);
-                                    helper.debug('ParseURL() va found: ' + parsed_number);
+                                    helper.debug(pid, `INFO Parser() data found: ${parsed_number}`);
+                                    result.push({
+                                        status: '000',
+                                        data: {
+                                            payment_url: parsed_url_decoded,
+                                            channel: parsed_channel,
+                                            pay_code: parsed_number,
+                                        }
+                                    });
                                 } else {
-                                    helper.debug('ParseURL() va not found');
+                                    throw new Error(`Data not found`);
                                 }
-                                result.push({
-                                    status: '000',
-                                    data: {
-                                        payment_url: parsed_url_decoded,
-                                        va_number: parsed_number,
-                                    }
-                                });
                                 break;
-                            /*------------------------------^ End of VA ^---------- */
+                                /*------------------------------^ End of VA ^---------- */
                         }
                         break;
-                    /*------------------------------^ End of 2C2P ^---------- */
+                        /*------------------------------^ End of 2C2P ^---------- */
                     default:
                         throw new Error(`Undefined vendor ${parsed_vendor}`);
                 }
-            }).then(async function () {
+            }).then(async function() {
                 //
-            }).catch(function (e) {
+            }).catch(function(e) {
                 result.push({
                     status: '001',
-                    error: e.message
+                    error: e.message,
+                    data: {
+                        payment_url: parsed_url_decoded,
+                    }
                 });
-                helper.debug(pid, `ERR Parser() error occured:`, e.message);
+                helper.debug(pid, `ERR Parser() error occured:`, e.message, e.lineNumber);
             });
             //
             await page.close();
@@ -127,19 +127,19 @@ async function Parser(req, res) {
     } catch (e) {
         result.push({
             status: '999',
-            error: e.message
+            error: e.message,
+            data: {
+                payment_url: parsed_url_decoded,
+            }
         });
-        helper.debug(pid, `ERR Parser() error occured:`, e.message);
+        helper.debug(pid, `ERR Parser() error occured:`, e.message, e.lineNumber);
     }
     helper.debug(pid, `SUCCESS Parser() result:`, result);
     res.setHeader('Content-Type', 'application/json');
     res.send(result[0]);
 
 }
-
-/*=================================   End of Functions   ==================================*/
-
-//EXPORT FUNCTION
+/*------------------------------^ End of Parser ^---------- */
 
 module.exports = {
     Parser

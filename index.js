@@ -3,9 +3,9 @@ const helper = require('./helper');
 //
 const vendors = [
     'Doku',
-    'Faspay',
-    'iPay88',
-    'TCTP',
+    //  'Faspay',
+    //  'iPay88',
+    //  'TCTP',
 ];
 
 /*------------------------------v Start of Each Vendors v---------- */
