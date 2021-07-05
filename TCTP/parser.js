@@ -102,9 +102,6 @@ async function Parser(req, res) {
                                         va_number: parsed_number,
                                     }
                                 });
-                                // await page.close();
-                                // await browser[client_id].close();
-                                browser[client_id] = null
                                 break;
                             /*------------------------------^ End of VA ^---------- */
                         }
