@@ -4,7 +4,8 @@
 	"description": "Scrapper for 2C2P",
 	"main": "index.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "nodemon index.js"
 	},
 	"author": "Sean A. (essefx@gmail.com)",
 	"license": "ISC",
@@ -13,6 +14,7 @@
 		"json-to-query-string": "^1.0.0",
 		"mkdirp": "^0.5.1",
 		"moment": "^2.24.0",
+		"nodemon": "^2.0.9",
 		"puppeteer": "^1.20.0"
 	}
 }

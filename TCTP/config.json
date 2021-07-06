@@ -1,6 +1,6 @@
 {
     "vendor_name": "TCTP",
-    "app_port": 18050,
+    "app_port": 15001,
     "is_headless": false,
     "client_id": "bot_2c2p"
 }
